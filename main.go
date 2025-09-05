@@ -49,6 +49,36 @@ func listFilesHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(files)
 }
 
+func describeFileHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	fileName := "posindonesia.png" // Use example file name or get from request
+
+	//resp, err := s3Client.ListObjectsV2(ctx, &s3.ListObjectsV2Input{
+	//	Bucket: &bucketName,
+	//})
+
+	resp, err := s3Client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: &bucketName,
+		Key:    aws.String(fileName),
+	})
+
+	if err != nil {
+		http.Error(w, "Failed to get object", http.StatusInternalServerError)
+		log.Println("Error get object:", err)
+		return
+	}
+
+	files := []string{}
+	files = append(files, *resp.ETag)
+	files = append(files, resp.LastModified.String())
+	files = append(files, fmt.Sprintf("%d", resp.ContentLength))
+	files = append(files, *resp.ContentType)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(files)
+}
+
 func newOidcCredential() (aliyuncredentials.Credential, error) {
 	// https://www.alibabacloud.com/help/doc-detail/378661.html
 	aliyunconfig := new(aliyuncredentials.Config).
@@ -164,6 +194,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/api/files", listFilesHandler).Methods("GET")
+	r.HandleFunc("/api/files/describe", describeFileHandler).Methods("GET")
 
 	port := "4000"
 	log.Println("Server running on http://localhost:" + port)

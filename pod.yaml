@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: static-s3-server-listing-golang
+  namespace: glid-staging
+spec:
+  containers:
+    - name: s3-server
+      image: feriva22/s3-backend-golang:oss-version
+      ports:
+        - name: web
+          containerPort: 4000
+          protocol: TCP
+      env:
+        - name: OSS_REGION
+          value: ap-southeast-5
+        - name: BUCKET_NAME
+          value: bucket-glid
+  restartPolicy: Always
+  terminationGracePeriodSeconds: 30
+  dnsPolicy: ClusterFirst
+  serviceAccountName: oss-access-sa
+
