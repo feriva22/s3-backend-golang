@@ -7,6 +7,7 @@ spec:
   containers:
     - name: s3-server
       image: feriva22/s3-backend-golang:oss-version
+      imagePullPolicy: Always
       ports:
         - name: web
           containerPort: 4000
@@ -20,4 +21,3 @@ spec:
   terminationGracePeriodSeconds: 30
   dnsPolicy: ClusterFirst
   serviceAccountName: oss-access-sa
-
