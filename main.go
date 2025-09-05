@@ -88,7 +88,7 @@ func newOidcCredential() (aliyuncredentials.Credential, error) {
 		SetOIDCTokenFilePath(os.Getenv(EnvOidcTokenFile)).
 		SetRoleSessionName("test-rrsa-oidc-token").
 		SetRoleSessionExpiration(3600).    // We set the expiration time of the role session to 3600 seconds (1 hour).
-		SetSTSEndpoint("sts.aliyuncs.com") // https://next.api.aliyun.com/product/Sts
+		SetSTSEndpoint("sts-vpc.ap-southeast-5.aliyuncs.com") // https://next.api.aliyun.com/product/Sts
 
 	fmt.Println("Executing this credential using OIDC")
 	oidcCredential, err := aliyuncredentials.NewCredential(aliyunconfig)
