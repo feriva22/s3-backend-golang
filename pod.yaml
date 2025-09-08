@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: static-s3-server-listing-golang-sidecar
+  namespace: glid-staging
+spec:
+  containers:
+    - name: alibaba-sidecar
+      image: feriva22/alibaba-rrsa-to-aws-credentials:latest
+      imagePullPolicy: Always
+      ports:
+        - name: cred-out
+          containerPort: 8050
+          protocol: TCP
+      env:
+        - name: CRED_OUT_FILE
+          value: /root/.aws/credentials
+      volumeMounts:
+        - name: aws-cred
+          mountPath: /root/.aws   # shared path for credentials
+    - name: s3-server
+      image: feriva22/s3-backend-golang:oss-sidecar
+      imagePullPolicy: Always
+      ports:
+        - name: web
+          containerPort: 4000
+          protocol: TCP
+      env:
+        - name: OSS_REGION
+          value: ap-southeast-5
+        - name: BUCKET_NAME
+          value: bucket-glid
+      volumeMounts:
+        - name: aws-cred
+          mountPath: /root/.aws   # same path, sees the same file
+  volumes:
+    - name: aws-cred
+      emptyDir: {}   # in-memory shared storage
+  restartPolicy: Always
+  terminationGracePeriodSeconds: 30
+  dnsPolicy: ClusterFirst
+  serviceAccountName: oss-access-sa
