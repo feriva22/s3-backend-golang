@@ -6,7 +6,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"fmt"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gorilla/mux"
@@ -40,7 +42,19 @@ func listFilesHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	// Load AWS config from env variables or shared config
-	cfg, err := config.LoadDefaultConfig(context.TODO())
+	region := os.Getenv("OSS_REGION")
+	endpoint := fmt.Sprintf("https://oss-%s.aliyuncs.com", region)
+
+	// Define a custom endpoint resolver
+	customResolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+		return aws.Endpoint{
+			PartitionID:   "oss",
+			URL:           endpoint,
+			SigningRegion: "us-east-1",
+		}, nil
+	})
+
+	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("us-east-1"),config.WithEndpointResolverWithOptions(customResolver),)
 	if err != nil {
 		log.Fatal("Unable to load AWS SDK config:", err)
 	}
