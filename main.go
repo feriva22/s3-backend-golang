@@ -6,7 +6,6 @@ import (
         "log"
         "net/http"
         "os"
-        "fmt"
 
         "github.com/aws/aws-sdk-go-v2/aws"
         "github.com/aws/aws-sdk-go-v2/config"
@@ -17,6 +16,7 @@ import (
 var (
         s3Client   *s3.Client
         bucketName string
+        endpoint   string
 )
 
 func listFilesHandler(w http.ResponseWriter, r *http.Request) {
